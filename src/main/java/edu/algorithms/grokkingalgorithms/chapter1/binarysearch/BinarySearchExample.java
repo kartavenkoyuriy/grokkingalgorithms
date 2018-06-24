@@ -6,7 +6,7 @@ public class BinarySearchExample {
         int[] ints1 = new int[]{3, 5, 7, 9};
 
 //        System.out.println(binarySearch(ints, 1));
-//        System.out.println(binarySearch(ints, 5));
+        System.out.println(binarySearch(ints, 5));
 //        System.out.println(binarySearch(ints1, 5));
 //        System.out.println(binarySearch(ints1, 2));
 //        System.out.println(binarySearch(ints1, 9));
