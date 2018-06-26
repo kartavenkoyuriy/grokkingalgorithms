@@ -20,8 +20,9 @@ public class DivideAndConquerExample {
 //        System.out.println(maxFromArray_byLoop(unsortedArray01));
 //        System.out.println(maxFromArray_byRecursion_divideAndConquer(unsortedArray01));
 
-        int[] ints03 = new int[]{1,3,5,7,9,11,13,11};
-        System.out.println(binarySearch_byLoop(ints03, 9));
+        int[] ints03 = new int[]{1, 3, 5, 7, 9, 11, 13};
+//        System.out.println(binarySearch_byLoop(ints03, 9));
+        System.out.println(binarySearch_byRecursion_divideAndConquer(ints03, 2, 0, ints03.length - 1));
     }
 
     public static int maxSquareField_InCaseLengthBigger(int length, int width) {
@@ -41,7 +42,7 @@ public class DivideAndConquerExample {
         return maxSquareField_NoMatterWhichIsBigger(width, length % width);
     }
 
-//    4.1
+    //    4.1
     public static int arraySum_byLoop(int[] array) {
         int sum = array[0];
 
@@ -60,7 +61,7 @@ public class DivideAndConquerExample {
         }
     }
 
-//    4.2
+    //    4.2
     public static int arrayLength_byLoop(int[] array) {
         int sum = 0;
 
@@ -79,7 +80,7 @@ public class DivideAndConquerExample {
         }
     }
 
-//    4.3
+    //    4.3
     public static int maxFromArray_byLoop(int[] array) {
         int max = array[0];
 
@@ -100,22 +101,42 @@ public class DivideAndConquerExample {
         return subMax > array[0] ? subMax : array[0];
     }
 
-//    4.4
-    public static int binarySearch_byLoop(int[] array, int elem){
-        int lo = 0;
-        int hi = array.length - 1;
+    //    4.4
+    public static int binarySearch_byLoop(int[] array, int elem) {
+        int start = 0;
+        int end = array.length - 1;
 
-        while (lo < hi){
-            int mid = (lo + hi) / 2;
-            if (array[mid] > elem) {
-                hi = mid;
+        while (start <= end) {
+            int middle = (end + start) / 2;
+            if (array[middle] == elem) {
+                return middle;
+            } else if (array[middle] > elem) {
+                end = middle - 1;
             } else {
-                lo = mid + 1;
+                start = middle + 1;
             }
         }
-
-        return lo;
+        return -1;
     }
 
+    public static int binarySearch_byRecursion_divideAndConquer(int[] array, int elem, int lo, int hi) {
+        int mid = (lo + hi) / 2;
+
+        if (array[mid] == elem) {
+            return mid;
+        }
+
+        if (array[mid] > elem) {
+            if (hi == mid) {
+                return -1;
+            }
+            hi = mid;
+            return binarySearch_byRecursion_divideAndConquer(array, elem, lo, hi);
+        } else {
+            lo = mid + 1;
+            return binarySearch_byRecursion_divideAndConquer(array, elem, lo, hi);
+        }
+
+    }
 }
 
