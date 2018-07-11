@@ -1,5 +1,6 @@
 package edu.algorithms.grokkingalgorithms.chapter6.graph;
 
+import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 import java.util.HashMap;
 import java.util.Queue;
@@ -23,10 +24,9 @@ public class FindMangoSeller {
     public static void main(String[] args) {
         FindMangoSeller g = new FindMangoSeller();
         //graph of friends
-        populateGraphOfFriends(g);
+        populateGraphOfFriends2(g);
 
-        String[] first = g.friendsGraph.get("me");
-
+        System.out.println(getMangoSeller(g, "me"));
     }
 
     private static void populateGraphOfFriends(FindMangoSeller g) {
@@ -40,19 +40,33 @@ public class FindMangoSeller {
         g.friendsGraph.put("Johny", new String[]{});
     }
 
+    private static void populateGraphOfFriends1(FindMangoSeller g) {
+        g.friendsGraph.put("me", new String[]{"Bob"});
+        g.friendsGraph.put("Bob", new String[]{"me"});
+    }
+
+    private static void populateGraphOfFriends2(FindMangoSeller g) {
+        g.friendsGraph.put("me", new String[]{"Bob"});
+        g.friendsGraph.put("Bob", new String[]{"Tom"});
+        g.friendsGraph.put("Tom", new String[]{"Joe"});
+    }
+
     @Nullable
-    private static String getMangoSeller(FindMangoSeller g, String yourName) {
-        if (isMangoSeller(yourName)){
-            return yourName;
+    private static String getMangoSeller(FindMangoSeller g, @NotNull String yourName) {
+        g.queue.add(yourName);
+        while (g.queue.peek() != null){
+            String currentPerson = g.queue.poll();
+            if (g.alreadyCheckedFriends.get(currentPerson) != null){
+                continue;
+            }
+
+            if (isMangoSeller(currentPerson)){
+                return currentPerson;
+            } else {
+                g.alreadyCheckedFriends.put(currentPerson, currentPerson);
+                addFriendsArrayToCheckingQueue(g, g.friendsGraph.get(currentPerson));
+            }
         }
-
-        String[] firstName = g.friendsGraph.get(yourName);
-        if (firstName == null) {
-            return null;
-        }
-
-        addFriendsArrayToCheckingQueue(g, firstName);
-
 
         return null;
     }
