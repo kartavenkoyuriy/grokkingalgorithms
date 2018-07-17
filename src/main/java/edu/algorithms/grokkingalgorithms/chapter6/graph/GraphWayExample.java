@@ -1,42 +1,49 @@
 package edu.algorithms.grokkingalgorithms.chapter6.graph;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class GraphWayExample {
     //TODO is there a way
     //TODO shortest way
+    //TODO how many steps
 
     HashMap<String, String[]> graph = new HashMap<>();
-    HashMap<String, String> alreadyCheckedNodes = new HashMap<>();
-    Queue<String> queue = new LinkedBlockingQueue<>();
-    HashMap<String, Integer> nodeStepsMap = new HashMap<>();
 
+    HashMap<String, Integer> nodeStepsMap = new HashMap<>();
 
     public static void main(String[] args) {
         GraphWayExample g = new GraphWayExample();
 
+        populateGraph(g);
+        System.out.println(g.isThereAWay("me", "Anuj"));
+        g.clearCollections();
+
+        populateGraph(g);
+        System.out.println(g.theShortestWayImproved("me", "Anuj"));
+        g.clearCollections();
+
 //        populateGraph(g);
-//        System.out.println(g.isThereAWay("me", "Anuj"));
+//        System.out.println(g.theShortestWay("me","Tom"));
 //        g.clearCollections();
-
-        populateGraph(g);
-        System.out.println(g.theShortestWay("me","Tom"));
-        g.clearCollections();
-
-        populateGraph(g);
-        System.out.println(g.theShortestWay("me","Claude"));
-        g.clearCollections();
+//
+//        populateGraph(g);
+//        System.out.println(g.theShortestWay("me","Claude"));
+//        g.clearCollections();
     }
 
     private void clearCollections() {
         graph.clear();
-        alreadyCheckedNodes.clear();
-        queue.clear();
     }
 
+    //TODO null checks
     boolean isThereAWay(String start, String end) {
+        Queue<String> queue = new LinkedBlockingQueue<>();
+        HashMap<String, String> alreadyCheckedNodes = new HashMap<>();
+
         queue.add(start);
         while (queue.peek() != null) {
             String currentNode = queue.poll();
@@ -48,7 +55,7 @@ public class GraphWayExample {
                 return true;
             } else {
                 String[] neighbourNodes = graph.get(currentNode);
-                addArrayToCheckingQueue(queue, neighbourNodes);
+                queue.addAll(Arrays.asList(neighbourNodes));
                 alreadyCheckedNodes.put(currentNode, currentNode);
             }
         }
@@ -56,25 +63,50 @@ public class GraphWayExample {
         return false;
     }
 
-    Integer theShortestWay(String start, String end) {
-//        int countSteps = 0;
+
+    String theShortestWayImproved(String start, String end) {
+        if (!isThereAWay(start, end)){
+            return null;
+        }
+
+        Queue<String> queue = new LinkedBlockingQueue<>();
+        HashMap<String, String> alreadyCheckedNodes = new HashMap<>();
+        Map<String, String> childParentMap = new HashMap<>();
 
         queue.add(start);
-//        nodeStepsMap.put(start, countSteps);
-        nodeStepsMap.put(start, 0);
-        while(queue.peek() != null){
+        childParentMap.put(start, null);
+        while (queue.peek() != null) {
             String currentNode = queue.poll();
-            if(currentNode.equals(end)){
-                return nodeStepsMap.get(currentNode);
-            } else {
+            if (alreadyCheckedNodes.get(currentNode) != null) {
+                continue;
+            }
 
+            if (currentNode.equals(end)) {
+                StringBuilder resultSb = new StringBuilder();
+                resultSb.append(end);
+                String parentName = childParentMap.get(end);
+                while (parentName != null){
+                    resultSb
+                            .append("|")
+                            .append(parentName);
+                    parentName = childParentMap.get(parentName);
+                }
+                return resultSb.toString();
+            } else {
+                String[] neighbourNodes = graph.get(currentNode);
+                for (int i = 0; i < neighbourNodes.length; i++) {
+                    queue.add(neighbourNodes[i]);
+                    childParentMap.put(neighbourNodes[i], currentNode);
+                    alreadyCheckedNodes.put(currentNode, currentNode);
+                }
             }
         }
 
         return null;
     }
 
-    private static void populateGraph(GraphWayExample g) {
+
+        private static void populateGraph(GraphWayExample g) {
         g.graph.put("me", new String[]{"Bob", "Alice", "Claire"});
         g.graph.put("Bob", new String[]{"Anuj", "Peggy", "Claire"});
         g.graph.put("Alice", new String[]{"Peggy"});
@@ -119,11 +151,4 @@ public class GraphWayExample {
         g.graph.put("Bob", new String[]{"Tom"});
         g.graph.put("Tom", new String[]{"Joe"});
     }
-
-    private static void addArrayToCheckingQueue(Queue<String> queue, String[] firstName) {
-        for (int i = 0; i < firstName.length; i++) {
-            queue.add(firstName[i]);
-        }
-    }
-
 }
