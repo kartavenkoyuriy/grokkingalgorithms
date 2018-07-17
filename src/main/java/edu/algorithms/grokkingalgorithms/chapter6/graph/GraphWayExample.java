@@ -7,13 +7,9 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class GraphWayExample {
-    //TODO is there a way
-    //TODO shortest way
     //TODO how many steps
 
     HashMap<String, String[]> graph = new HashMap<>();
-
-    HashMap<String, Integer> nodeStepsMap = new HashMap<>();
 
     public static void main(String[] args) {
         GraphWayExample g = new GraphWayExample();
@@ -39,7 +35,6 @@ public class GraphWayExample {
         graph.clear();
     }
 
-    //TODO null checks
     boolean isThereAWay(String start, String end) {
         Queue<String> queue = new LinkedBlockingQueue<>();
         HashMap<String, String> alreadyCheckedNodes = new HashMap<>();
@@ -50,7 +45,9 @@ public class GraphWayExample {
             if (alreadyCheckedNodes.get(currentNode) != null) {
                 continue;
             }
-
+            //TODO understand what is assert
+            //TODO figure out a consise way to null check
+            //assert currentNode != null;
             if (currentNode.equals(end)) {
                 return true;
             } else {
@@ -63,12 +60,8 @@ public class GraphWayExample {
         return false;
     }
 
-
+    //TODO improve if possible (without queue, on maps)
     String theShortestWayImproved(String start, String end) {
-        if (!isThereAWay(start, end)){
-            return null;
-        }
-
         Queue<String> queue = new LinkedBlockingQueue<>();
         HashMap<String, String> alreadyCheckedNodes = new HashMap<>();
         Map<String, String> childParentMap = new HashMap<>();
@@ -81,11 +74,12 @@ public class GraphWayExample {
                 continue;
             }
 
+            //TODO figure out a consise way to null check
             if (currentNode.equals(end)) {
                 StringBuilder resultSb = new StringBuilder();
                 resultSb.append(end);
                 String parentName = childParentMap.get(end);
-                while (parentName != null){
+                while (parentName != null) {
                     resultSb
                             .append("|")
                             .append(parentName);
@@ -106,7 +100,7 @@ public class GraphWayExample {
     }
 
 
-        private static void populateGraph(GraphWayExample g) {
+    private static void populateGraph(GraphWayExample g) {
         g.graph.put("me", new String[]{"Bob", "Alice", "Claire"});
         g.graph.put("Bob", new String[]{"Anuj", "Peggy", "Claire"});
         g.graph.put("Alice", new String[]{"Peggy"});
@@ -119,27 +113,6 @@ public class GraphWayExample {
 
 
     }
-
-    void fillNumberTable(GraphWayExample g, String startName){
-        int count = 0;
-
-        g.nodeStepsMap.put(startName, 0);
-        while(true){
-            count++;
-            String[] neighbourNodes = g.graph.get(startName);
-            putNodesWithNumber(nodeStepsMap, neighbourNodes, count);
-
-            break;
-        }
-    }
-
-    private void putNodesWithNumber (
-            HashMap<String, Integer> nodeStepsMap, String[] neighbourNodes, int number) {
-        for (int i = 0; i < neighbourNodes.length; i++) {
-            nodeStepsMap.put(neighbourNodes[i],number);
-        }
-    }
-
 
     private static void populateGraph1(GraphWayExample g) {
         g.graph.put("me", new String[]{"Bob"});
