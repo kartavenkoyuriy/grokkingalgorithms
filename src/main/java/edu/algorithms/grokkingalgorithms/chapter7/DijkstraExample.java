@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class DijkstraExample {
 
-    private Map<String, Map<String, Integer>> graph = new HashMap<>();
 
     public Map<String, Map<String, Integer>> getGraph() {
         return graph;
@@ -28,7 +28,11 @@ public class DijkstraExample {
         graph.put("end", null);
     }
 
-    public static String findTheShortest(Map<String, Map<String, Integer>> initialGraph) {
+    //TODO method to summ way
+
+    private Map<String, Map<String, Integer>> graph = new HashMap<>();
+
+    public String findTheShortest(Map<String, Map<String, Integer>> initialGraph) {
         //TODO need2sink whether infinity is a Integer.MAX_VALUE or null
 //        int infinity = Integer.MAX_VALUE;
 
@@ -54,27 +58,63 @@ public class DijkstraExample {
         }
         processed.add(currentNodeName);
 
+        currentNodeName = findTheLightestNodeName(costs, processed);
+        currentNode = initialGraph.get(currentNodeName);
         while (currentNode != null) {
-            currentNodeName = findTheLightestNodeName(costs, processed);
+            for (Entry<String, Integer> stringIntegerEntry : currentNode.entrySet()) {
+                if(costs.get(stringIntegerEntry.getKey()) == null){
+                    costs.put(stringIntegerEntry.getKey(), costs.get(currentNodeName) + stringIntegerEntry.getValue());
+                    parents.put(stringIntegerEntry.getKey(), null);
+                }
 
-            break;
+                int newWayToNeighbourNodeThroughCurrentNode = costs.get(currentNodeName) + stringIntegerEntry.getValue();
+                if (costs.get(stringIntegerEntry.getKey()) != null && newWayToNeighbourNodeThroughCurrentNode < costs.get(stringIntegerEntry.getKey())){
+                    costs.put(stringIntegerEntry.getKey(), newWayToNeighbourNodeThroughCurrentNode);
+                    parents.put(stringIntegerEntry.getKey(), currentNodeName);
+                }
+            }
+            processed.add(currentNodeName);
+            currentNodeName = findTheLightestNodeName(costs, processed);
+            currentNode = initialGraph.get(currentNodeName);
         }
 
-
-        return null;
+        return getWayFromParentsTable(parents);
     }
 
-    private static String findTheLightestNodeName(Map<String, Integer> costs, List<String> processed) {
+    private String getWayFromParentsTable(Map<String, String> parents) {
+        if (parents.get("end") == null){
+            //TODO need2sink maybe it's ok(when one node)
+            //TODO message
+            throw new IllegalArgumentException("");
+        }
+
+        StringBuilder parentResultBuilder = new StringBuilder();
+        parentResultBuilder.append("end");
+
+        String currentNode = "end";
+        while (currentNode != null){
+            String nextCurrentNode = parents.get(currentNode);
+            if(nextCurrentNode != null){
+                parentResultBuilder.append("|").append(nextCurrentNode);
+            }
+            currentNode = nextCurrentNode;
+        }
+        return parentResultBuilder.toString();
+    }
+
+    String findTheLightestNodeName(Map<String, Integer> costs, List<String> processed) {
         String node = null;
         int nodeWeight = 0;
 
         for (Map.Entry<String, Integer> stringIntegerEntry : costs.entrySet()) {
-            if (node == null && !processed.contains(stringIntegerEntry.getKey())) {
+            if (node == null
+                    && !processed.contains(stringIntegerEntry.getKey())
+                    && stringIntegerEntry.getValue() != null) {
                 node = stringIntegerEntry.getKey();
                 nodeWeight = stringIntegerEntry.getValue();
-            } else if (!processed.contains(stringIntegerEntry.getKey())){
+            } else if (!processed.contains(stringIntegerEntry.getKey())) {
                 if (stringIntegerEntry.getValue() != null //what if END?
-                        && (stringIntegerEntry.getValue() < nodeWeight)){
+                        && (stringIntegerEntry.getValue() < nodeWeight)) {
                     node = stringIntegerEntry.getKey();
                     nodeWeight = stringIntegerEntry.getValue();
                 }
@@ -84,6 +124,15 @@ public class DijkstraExample {
         }
 
         return node;
+    }
+
+    public static void main(String[] args) {
+//        System.out.println(new Double(Double.POSITIVE_INFINITY).intValue());
+
+        DijkstraExample dijkstraExample = new DijkstraExample();
+        dijkstraExample.populate();
+        System.out.println(dijkstraExample.findTheShortest(dijkstraExample.getGraph()));
+
     }
 
 }
